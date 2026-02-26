@@ -2,158 +2,446 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="light" />
-  <title>신규 교행 업무 가이드 잡화점</title>
+  <title>신규 잡화점 · 업무 흐름</title>
 
   <link rel="icon" href="/static/favicon.ico" />
   <link rel="stylesheet" href="/static/style.css" />
+
+  <style>
+    /* index 전용(가벼운 보조 스타일) */
+    .kicker { text-align:center; margin: 10px 0 0; color:#666; font-size:0.95rem; }
+    .notice-bar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+    .pill { display:inline-block; padding:6px 10px; border:1px solid #e5e5e5; border-radius:999px; background:#fafafa; font-size:0.9rem; color:#444; }
+    .search-row { display:flex; gap:10px; flex-wrap:wrap; }
+    .search-row input { flex: 1 1 260px; }
+    .tool-list a { text-decoration: underline; text-underline-offset: 2px; }
+    .mini { font-size:0.9rem; color:#666; }
+    .right { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .tag { font-size:0.85rem; border:1px solid #ddd; border-radius:999px; padding:4px 8px; background:#fff; color:#444; white-space:nowrap; }
+    .hidden { display:none !important; }
+    .ref-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.95rem; }
+    .toast {
+      position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+      padding: 10px 12px; border: 1px solid #e5e5e5; border-radius: 12px;
+      background: rgba(255,255,255,0.95); box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      font-size: 0.95rem; color:#111; z-index: 9999;
+      display:none;
+    }
+    .btn-stack { display: grid; gap: 14px; }
+
+    .subgrid { display:grid; gap:10px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .callout { padding: 10px 12px; border: 1px solid #e5e5e5; border-radius: 12px; background: #fafafa; }
+    .callout .t { margin:0 0 6px; font-weight:700; color:#111; }
+    .callout .d { margin:0; color:#555; font-size:0.95rem; }
+
+    /* details(대시보드) */
+    .dash-summary{
+      display:flex;
+      align-items:baseline;
+      gap:8px;
+      cursor:pointer;
+      list-style:none;
+    }
+    .dash-summary::-webkit-details-marker{ display:none; }
+    .dash-title{ font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+  </style>
 </head>
 
 <body>
-  <a class="skip-link" href="#content">본문 바로가기</a>
 
-  <!-- 상단 헤더 -->
-  <header class="site-header">
-    <div class="shell">
-      <div class="row between">
-        <div class="row gap" aria-label="페이지 정보">
-          <span class="badge-rose">잡화점</span>
-          <span class="muted">신규 교행(교육행정직) 업무 가이드</span>
-        </div>
+  <main class="container">
+    <h1>신규 잡화점 운영을 위한 <br/> 업무 흐름·매뉴얼 메인</h1>
+    <p class="subtitle">— 팀 내부 안내용 (운영·발주·재고·정산)</p>
 
-        <div class="row gap no-print" aria-label="빠른 동작">
-          <button class="btn pastel-blue" type="button" data-action="print-page">페이지 인쇄/PDF</button>
-          <button class="btn pastel-blue" type="button" data-action="print-checklist">체크리스트 PDF</button>
-          <button class="btn pastel-grey" type="button" data-action="reset-checklist">체크 초기화</button>
-        </div>
-      </div>
+    <p class="muted">
+      ·이 페이지는 <span class="accent">“바로 실행할 것”</span> 위주로 모아두는 메인입니다. <br/>
+      ·상세 규정/서식/체크리스트는 각 항목의 상세 페이지 또는 PDF로 연결합니다. <br/>
+      ·매장 상황에 맞게 버튼/키워드를 계속 추가하면서 “살아있는 위키”처럼 굴리는 컨셉입니다. <br/>
+    </p>
+
+    <div class="notice-bar" aria-label="빠른 상태 배지">
+      <span class="pill">🧾 정산</span>
+      <span class="pill">📦 발주/입고</span>
+      <span class="pill">🧮 재고/진열</span>
+      <span class="pill">🙋 CS/교환·환불</span>
+      <span class="pill">🧼 위생/안전</span>
     </div>
-  </header>
 
-  <main class="container" id="content">
-    <section class="hero">
-      <h1>신규 교행 업무 가이드 잡화점</h1>
-      <p class="subtitle">업무를 “기억력”이 아니라 “흐름 + 체크리스트”로 굴리기 위한 작은 안내서 모음</p>
+    <hr/>
 
-      <p class="muted">
-        ·강원특별자치도 기준(예시)으로 작성하되, 기관/지역별로 지침·서식·기한이 달라질 수 있습니다. 최종 확인은 항상 사용자 본인이 하셔야 합니다.<br/>
-        ·서버/DB 없이 동작합니다. 체크리스트는 <span class="accent">현재 브라우저 로컬 저장</span>만 사용합니다(PC/브라우저가 바뀌면 초기화될 수 있음).<br/>
-        ·인쇄 버튼으로 바로 PDF 저장 가능합니다(브라우저 인쇄 기능 사용).<br/>
-      </p>
-    </section>
-
-    <!-- ✅ 모든 페이지 공통: 업무 흐름 체크리스트 -->
-    <section class="section callout" id="workflowChecklistSection"
-             data-workflow-checklist-root
-             data-checklist-scope="home_v1">
-      <div class="row between">
-        <h2 class="local-h2 local-tight">업무 흐름 체크리스트 (온보딩 기본 루틴)</h2>
-        <p class="muted local-small">오늘: <span data-today-text> - </span></p>
-      </div>
-
-      <div class="checklist" aria-label="온보딩 체크리스트">
-        <div class="check">
-          <input id="home_c1" type="checkbox" />
-          <label class="label" for="home_c1">
-            <strong>내 담당업무 범위/주요 마감(월별)을 “달력”에 먼저 박아두기</strong>
-            <p class="muted">업무는 기억이 아니라 일정표로 굴러갑니다.</p>
-          </label>
-        </div>
-
-        <div class="check">
-          <input id="home_c2" type="checkbox" />
-          <label class="label" for="home_c2">
-            <strong>인수인계 3종 세트 확인: (1) 열쇠/대장 (2) 공유폴더 (3) 미처리 목록</strong>
-            <p class="muted">사람이 바뀌어도 “흐름이 끊기지 않게” 만드는 게 목표.</p>
-          </label>
-        </div>
-
-        <div class="check">
-          <input id="home_c3" type="checkbox" />
-          <label class="label" for="home_c3">
-            <strong>권한/접속 점검: K-에듀파인, 나이스, 공문 시스템, 공동인증서/보안토큰</strong>
-            <p class="muted">권한이 막히면 업무가 멈춥니다. 초반에 뚫어두는 게 최선.</p>
-          </label>
-        </div>
-
-        <div class="check">
-          <input id="home_c4" type="checkbox" />
-          <label class="label" for="home_c4">
-            <strong>기록물 “연간 큰 흐름”만 외워두기: 지정 → 2월 정리 → 5월 통보 → (6~10월) 폐기 절차 → 12월 대장</strong>
-            <p class="muted">상세는 아래 기록물 가이드에서 체크리스트로 따라가면 됩니다.</p>
-          </label>
-        </div>
-
-        <div class="check">
-          <input id="home_c5" type="checkbox" />
-          <label class="label" for="home_c5">
-            <strong>업무에 쓰는 템플릿/서식을 “내 폴더”로 복사해 표준화하기</strong>
-            <p class="muted">같은 문서를 매번 새로 쓰지 않게 만드는 게 곧 자동화입니다.</p>
-          </label>
-        </div>
-      </div>
-
-      <p class="muted">
-        팁: 인쇄 시 “체크리스트 PDF” 버튼을 누르면, 이 섹션만 깔끔하게 출력되도록 되어 있습니다.
-      </p>
-    </section>
-
-    <!-- 가이드 진열대 -->
-    <section class="section" id="guides">
-      <h2 class="local-h2">가이드 진열대</h2>
+    <!-- ======================== -->
+    <section class="section">
+      <h2>빠른 바로가기</h2>
       <hr/>
 
-      <div>
-        <a class="btn pastel-blue" href="/guide-for-new-members-records-index.html">기록물 업무 흐름 (상세 가이드)</a>
-        <div class="btn-desc">
-          ·연간 반복 흐름(지정 → 정리 → 생산현황 통보 → 폐기 심의/절차 → 관리대장) + 체크리스트 + PDF 출력<br/>
-          ·신규 교행이 “제일 먼저 막히는 구간(2월 정리, 폐기 절차)”을 실무 단위로 쪼갠 페이지
+      <div class="grid two">
+        <div class="card">
+          <h3>운영 공지/업데이트</h3>
+          <p class="muted">·공지/정책 변경사항을 한 곳에 모아둡니다.</p>
+          <div class="row gap">
+            <a class="btn pastel-yellow" href="/notice/">공지 모음</a>
+            <a class="btn" href="/notice/how-to-use/">이용안내</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>업무 가이드/도구</h3>
+          <p class="muted">·업무 절차/템플릿/작업 도구 모음.</p>
+          <div class="row gap">
+            <a class="btn pastel-blue" href="/guide/">가이드 모음</a>
+            <a class="btn" href="/tools/">도구 모음</a>
+          </div>
         </div>
       </div>
 
-      <div>
-        <a class="btn pastel-grey" href="#" aria-disabled="true" onclick="return false;">학교회계(세입/세출) 업무 흐름 (준비중)</a>
-        <div class="btn-desc">·월별 마감/결재 루틴을 체크리스트로 제공 예정</div>
-      </div>
-
-      <div>
-        <a class="btn pastel-grey" href="#" aria-disabled="true" onclick="return false;">인사·복무(공무직/기간제 포함) 업무 흐름 (준비중)</a>
-        <div class="btn-desc">·연차, 발령, 근무상황, 계약 갱신 등 “반복업무” 흐름 중심으로 정리 예정</div>
+      <div class="subgrid" style="margin-top:12px;">
+        <div class="callout">
+          <p class="t">오늘 오픈 루틴</p>
+          <p class="d">오픈 전: POS 점검 → 현금/영수증 → 진열/청결 → 라스트 재고 확인</p>
+        </div>
+        <div class="callout">
+          <p class="t">오늘 마감 루틴</p>
+          <p class="d">마감: 정산 출력 → 현금 시재/카드 대사 → 쓰레기/청소 → 보안/전기</p>
+        </div>
+        <div class="callout">
+          <p class="t">입고 처리</p>
+          <p class="d">송장/거래명세 확인 → 검수 → 가격표 → 진열 → 재고 반영</p>
+        </div>
+        <div class="callout">
+          <p class="t">교환·환불</p>
+          <p class="d">증빙 확인 → 환불 규정 적용 → POS 처리 → 원인 기록</p>
+        </div>
       </div>
     </section>
 
-    <!-- 운영 메모 -->
-    <section class="section" id="notes">
-      <h2 class="local-h2">운영 메모</h2>
+    <!-- ======================== -->
+    <section class="section dl-section">
+      <h2>체크리스트 PDF 다운로드</h2>
       <hr/>
-      <div class="card">
-        <h3 class="local-h3 local-tight">이 사이트의 규칙(단순하지만 강력)</h3>
-        <ol>
-          <li><span class="accent">업무는 ‘절차’가 아니라 ‘흐름’</span>으로 본다.</li>
-          <li>흐름은 <span class="accent">체크리스트</span>로 분해하고, 체크리스트는 <span class="accent">PDF로 남길 수 있어야</span> 한다.</li>
-          <li>동일한 실수를 반복하지 않도록, “자주 터지는 지점”은 별도로 적어둔다.</li>
-        </ol>
-        <p class="muted">복잡한 세계를 이겨내는 가장 좋은 방법은, 복잡함을 ‘잘게’ 써두는 것입니다.</p>
+
+      <p class="muted dl-desc">
+        ·오픈/마감/입고/재고/정산 체크리스트를 PDF로 내려받아 출력해서 쓰는 용도입니다. <br/>
+        ·파일은 <span class="ref-code">/static/</span> 폴더에 두고 링크만 걸어두면 됩니다.      </p>
+
+      <div class="grid two">
+        <div class="card">
+          <h3>통합 체크리스트</h3>
+          <p class="muted">·오픈+마감+입고+재고+정산 한 장짜리.</p>
+          <div class="row gap">
+            <a class="btn pastel-mint" href="/static/checklist.pdf" download>체크리스트 PDF 다운로드</a>
+            <a class="btn" href="/static/checklist.pdf" target="_blank" rel="noopener">새 창에서 보기</a>
+          </div>
+          <p class="muted mini">※ 파일명은 필요에 따라 바꿔도 됩니다. (예: <span class="ref-code">opening-checklist.pdf</span>)</p>
+        </div>
+
+        <div class="card">
+          <h3>일일 정산 요약</h3>
+          <p class="muted">·정산 시 빠뜨리기 쉬운 항목만 모은 짧은 버전.</p>
+          <div class="row gap">
+            <a class="btn pastel-blue" href="/static/closing-summary.pdf" download>정산 요약 PDF 다운로드</a>
+            <a class="btn" href="/static/closing-summary.pdf" target="_blank" rel="noopener">새 창에서 보기</a>
+          </div>
+          <p class="muted mini">※ 파일이 아직 없다면, 우선 링크만 두고 나중에 파일을 올려도 됩니다.</p>
+        </div>
       </div>
     </section>
 
-    <footer class="site-footer">
-      <div class="shell">
-        <p><span class="accent">메모:</span> 이 페이지는 신규 교행의 빠른 업무 적응을 돕기 위한 가이드(정리본)입니다.</p>
-        <p class="muted">기관별 세부 일정/서식/근거 문구는 관할 교육(지원)청 안내와 최신 지침을 우선하세요.</p>
-      </div>
-    </footer>
+    <!-- ======================== -->
+    <!-- 대시보드 (기본: 열림) -->
+    <section class="section">
+      <details class="dash-details" open>
+        <summary class="dash-summary">
+          <span class="dash-title">오늘의 운영 대시보드</span>
+          <span class="muted">— 펼치기/접기</span>
+        </summary>
+        <p class="muted">
+          ·자주 헷갈리는 “오늘/이번주 해야 할 것”을 빠르게 확인합니다. <br/>
+          ·2026.2.26.(목) 기준 샘플 구성 (필요한 내용으로 교체하세요)        </p>
 
-    <button id="btnToTop" class="btn pastel-grey no-print" type="button" aria-label="맨 위로">↑</button>
+        <hr />
+
+        <div class="grid two">
+          <div class="card">
+            <h3>오늘 꼭 하기</h3>
+            <p class="muted">·매일 반복 업무(루틴)</p>
+            <hr/>
+
+            <div class="btn-stack">
+              <div>
+                <a class="btn pastel-yellow" href="/guide/open-close/">오픈/마감 루틴(상세)</a>
+                <p class="muted">·오픈/마감 체크리스트 + 자주 하는 실수</p>
+              </div>
+
+              <div>
+                <a class="btn pastel-blue" href="/guide/pos-closing/">POS 정산 & 대사</a>
+                <p class="muted">·카드/현금/간편결제/쿠폰 정산 흐름</p>
+              </div>
+
+              <div>
+                <a class="btn" href="/guide/cs/">고객응대/교환·환불</a>
+                <p class="muted">·환불 기준, 예외 처리, 기록 남기는 법</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>이번 주 운영/발주</h3>
+            <p class="muted">·주간 단위 업무</p>
+            <hr/>
+
+            <div class="btn-stack">
+              <div>
+                <a class="btn pastel-mint" href="/guide/order/">발주 → 입고 → 검수 흐름</a>
+                <p class="muted">·거래처별 발주 리드타임/입고 체크</p>
+              </div>
+
+              <div>
+                <a class="btn" href="/guide/inventory/">재고·진열 점검</a>
+                <p class="muted">·결품/과재고/유통기한/가격표</p>
+              </div>
+
+              <div>
+                <a class="btn pastel-orange" href="/notice/promo/">행사/프로모션 체크</a>
+                <p class="muted">·가격 변경·POP·SNS 업로드 일정</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- ========================= 검색 ========================= -->
+    <section class="section">
+      <div class="notice-bar">
+        <div>
+          <h3>검색해서 내용 찾기</h3>
+          <p class="muted">
+            ·검색어를 쉼표(,) 또는 띄어쓰기로 여러 개 입력할 수 있습니다. <br/>
+            ·입력한 단어 중 <span class="accent">하나라도 포함</span>되면 결과에 표시됩니다. <br/>
+            ·“어느 페이지에 뭐가 있지?”를 찾는 용도라서, 키워드를 넓게 잡아두는 게 유리합니다.          </p>
+        </div>
+
+        <div class="right" aria-label="검색 예시 태그">
+          <span class="tag">오픈</span>
+          <span class="tag">마감</span>
+          <span class="tag">발주</span>
+          <span class="tag">입고</span>
+          <span class="tag">재고</span>
+          <span class="tag">환불</span>
+          <span class="tag">정산</span>
+        </div>
+      </div>
+
+      <div class="search-row">
+        <input id="q" type="text" placeholder="예시: 오픈, 마감 정산, 발주 입고, 환불 교환, 재고 진열" autocomplete="off" />
+        <button class="btn" type="button" id="btnSearch">조회하기</button>
+        <button class="btn" type="button" id="btnClear">검색 결과 초기화</button>
+      </div>
+      <p class="muted mini">TIP: “환불, 영수증”처럼 쉼표로 끊으면 조금 더 빨라요.</p>
+    </section>
+
+    <!-- ========================= 안내 목록 ========================= -->
+    <section class="section">
+      <h2>업무 가이드 목록</h2>
+      <p class="muted">·카드를 누르면 해당 주제로 이동합니다. (아직 없는 페이지는 추후 제작)</p>
+
+      <div class="tool-grid" id="grid">
+
+        <article class="tool-card item" data-keywords="오픈 마감 루틴 체크리스트 청소 점검 시재 키오스크 pos 전기 보안 문열기 닫기">
+          <div class="tool-head">
+            <p class="tool-title">오픈/마감 루틴</p>
+            <p class="tool-sub">·매일 반복되는 기본 흐름(가장 중요)</p>
+          </div>
+          <div class="tool-body">
+            <div class="row between">
+              <a class="btn pastel-yellow" href="/guide/open-close/">상세페이지로 이동</a>
+              <a class="btn" href="/static/checklist.pdf" download>체크리스트 PDF</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="tool-card item" data-keywords="발주 주문 거래처 품목 단가 리드타임 입고 검수 송장 거래명세서 바코드 가격표">
+          <div class="tool-head">
+            <p class="tool-title">발주 → 입고 → 검수</p>
+            <p class="tool-sub">·발주 타이밍, 검수 체크포인트, 라벨링/진열</p>
+          </div>
+          <div class="tool-body">
+            <div class="row between">
+              <a class="btn pastel-mint" href="/guide/order/">상세페이지로 이동</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="tool-card item" data-keywords="재고 조사 재고실사 품절 결품 과재고 진열 위치 가격표 유통기한 파손 폐기">
+          <div class="tool-head">
+            <p class="tool-title">재고·진열 관리</p>
+            <p class="tool-sub">·결품/과재고 줄이기, 진열 기준, 유통기한/파손 처리</p>
+          </div>
+          <div class="tool-body">
+            <div class="row between">
+              <a class="btn pastel-blue" href="/guide/inventory/">상세페이지로 이동</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="tool-card item" data-keywords="pos 정산 마감 카드현금 간편결제 쿠폰 포인트 영수증 매출 보고 대사 시재">
+          <div class="tool-head">
+            <p class="tool-title">POS 정산 & 매출 대사</p>
+            <p class="tool-sub">·카드/현금/간편결제 맞추기, 정산 출력물 정리</p>
+          </div>
+          <div class="tool-body">
+            <div class="row between">
+              <a class="btn pastel-purple" href="/guide/pos-closing/">상세페이지로 이동</a>
+              <a class="btn" href="/static/closing-summary.pdf" download>정산 요약 PDF</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="tool-card item" data-keywords="고객응대 cs 민원 컴플레인 교환 환불 취소 영수증 카드 승인 취소 하자 불량">
+          <div class="tool-head">
+            <p class="tool-title">고객응대(CS) / 교환·환불</p>
+            <p class="tool-sub">·규정/예외/기록(나중에 분쟁 방지)</p>
+          </div>
+          <div class="tool-body">
+            <div class="row between">
+              <a class="btn pastel-orange" href="/guide/cs/">상세페이지로 이동</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="tool-card item" data-keywords="행사 프로모션 할인 가격변경 pop 홍보 sns 인스타 릴스 스토리 이벤트">
+          <div class="tool-head">
+            <p class="tool-title">행사/프로모션 운영</p>
+            <p class="tool-sub">·가격 변경, POP, 채널 업로드 체크</p>
+          </div>
+          <div class="tool-body">
+            <div class="row between">
+              <a class="btn" href="/notice/promo/">상세페이지로 이동</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="tool-card item" data-keywords="위생 안전 청소 소독 화재 소화기 전기 가스 시설 점검 사고 보고 보험">
+          <div class="tool-head">
+            <p class="tool-title">위생·안전·시설</p>
+            <p class="tool-sub">·안전은 지루해야 합니다(=사고가 안 납니다)</p>
+          </div>
+          <div class="tool-body">
+            <div class="row between">
+              <a class="btn" href="/guide/safety/">상세페이지로 이동</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="tool-card item" data-keywords="회계 문서 보관 증빙 거래명세서 세금계산서 카드매출 현금영수증 비용 정리">
+          <div class="tool-head">
+            <p class="tool-title">증빙/문서 정리</p>
+            <p class="tool-sub">·거래명세서, 영수증, 정산물, 계약서 정리 규칙</p>
+          </div>
+          <div class="tool-body">
+            <div class="row between">
+              <a class="btn" href="/guide/docs/">상세페이지로 이동</a>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
   </main>
 
-  <!-- 공통 스크립트: 체크리스트 저장/인쇄 -->
-  <script src="/static/workflow-checklist.js?v=1"></script>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <!-- 기존 공통 스크립트(있다면 유지) -->
+  <script>
+    (function () {
+      const $ = (sel, el=document) => el.querySelector(sel);
+      const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+      function toast(msg) {
+        const t = $(\"#toast\");
+        if (!t) return;
+        t.textContent = msg;
+        t.style.display = \"block\";
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => (t.style.display = \"none\"), 1400);
+      }
+
+      // 검색 필터
+      const q = $(\"#q\");
+      const btnSearch = $(\"#btnSearch\");
+      const btnClear = $(\"#btnClear\");
+      const items = $$(\".item\");
+
+      function norm(s) {
+        return (s || \"\").toLowerCase().replace(/\\s+/g, \" \").trim();
+      }
+
+      // ✅ 쉼표/공백으로 여러 단어 입력 지원 (OR 검색)
+      function tokens(s) {
+        return norm(s).split(/[,\\s]+/).filter(Boolean);
+      }
+
+      function applyFilter() {
+        const needles = tokens(q?.value);
+
+        if (needles.length === 0) {
+          items.forEach(it => it.classList.remove(\"hidden\"));
+          return;
+        }
+
+        items.forEach(it => {
+          const hay = norm(it.textContent + \" \" + (it.dataset.keywords || \"\"));
+          const ok = needles.some(t => hay.includes(t)); // ✅ 하나라도 포함되면 표시
+          it.classList.toggle(\"hidden\", !ok);
+        });
+
+        const visibleCount = items.filter(it => !it.classList.contains(\"hidden\")).length;
+        if (visibleCount === 0) toast(\"검색 결과가 없습니다\");
+      }
+
+      if (q) {
+        q.addEventListener(\"input\", applyFilter);
+
+        // Enter 키로 조회하기
+        q.addEventListener(\"keydown\", (e) => {
+          if (e.key === \"Enter\") {
+            e.preventDefault();
+            applyFilter();
+          }
+        });
+      }
+
+      // 조회하기 버튼 클릭
+      if (btnSearch) btnSearch.addEventListener(\"click\", applyFilter);
+
+      // 초기화 버튼
+      if (btnClear) {
+        btnClear.addEventListener(\"click\", () => {
+          if (q) q.value = \"\";
+          applyFilter();
+          q?.focus();
+        });
+      }
+
+      // 최초 1회 동기화
+      applyFilter();
+
+      // 링크된 PDF가 아직 없다면 404가 날 수 있어 안내(개발 단계)
+      // - 운영 단계에서 불필요하면 지워도 됨.
+      const pdfLinks = $$('a[href$=\".pdf\"]');
+      pdfLinks.forEach(a => {
+        a.addEventListener('click', () => {
+          // 아주 가벼운 힌트(팝업/방해는 없음)
+          // toast('PDF 다운로드 링크를 열었습니다');
+        });
+      });
+    })();
+  </script>
+
   <script src="/static/disable-copy.js"></script>
   <script src="/static/footer.js"></script>
   <script src="/static/global-loader.js?v=1"></script>
+
 </body>
 </html>
