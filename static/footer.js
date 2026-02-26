@@ -17,7 +17,7 @@
 <footer class="site-footer">
   <div class="shell">
     © <span id="footer-year"></span>.
-    문막사랑 업무천재 고주무관. All rights reserved. · Contact: edusproutcomics@naver.com · 개인 제작·운영 페이지.<br/>
+    신규사랑 업무천재 고주무관. All rights reserved. · Contact: edusproutcomics@naver.com · 개인 제작·운영 페이지.<br/>
     <br/>
   </div>
 </footer>
