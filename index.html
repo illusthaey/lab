@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>신규 교행 업무 가이드 잡화점</title>
+
+  <link rel="icon" href="/static/favicon.ico" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#content">본문 바로가기</a>
+
+  <!-- 상단 헤더 -->
+  <header class="site-header">
+    <div class="shell">
+      <div class="row between">
+        <div class="row gap" aria-label="페이지 정보">
+          <span class="badge-rose">잡화점</span>
+          <span class="muted">신규 교행(교육행정직) 업무 가이드</span>
+        </div>
+
+        <div class="row gap no-print" aria-label="빠른 동작">
+          <button class="btn pastel-blue" type="button" data-action="print-page">페이지 인쇄/PDF</button>
+          <button class="btn pastel-blue" type="button" data-action="print-checklist">체크리스트 PDF</button>
+          <button class="btn pastel-grey" type="button" data-action="reset-checklist">체크 초기화</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" id="content">
+    <section class="hero">
+      <h1>신규 교행 업무 가이드 잡화점</h1>
+      <p class="subtitle">업무를 “기억력”이 아니라 “흐름 + 체크리스트”로 굴리기 위한 작은 안내서 모음</p>
+
+      <p class="muted">
+        ·강원특별자치도 기준(예시)으로 작성하되, 기관/지역별로 지침·서식·기한이 달라질 수 있습니다. 최종 확인은 항상 사용자 본인이 하셔야 합니다.<br/>
+        ·서버/DB 없이 동작합니다. 체크리스트는 <span class="accent">현재 브라우저 로컬 저장</span>만 사용합니다(PC/브라우저가 바뀌면 초기화될 수 있음).<br/>
+        ·인쇄 버튼으로 바로 PDF 저장 가능합니다(브라우저 인쇄 기능 사용).<br/>
+      </p>
+    </section>
+
+    <!-- ✅ 모든 페이지 공통: 업무 흐름 체크리스트 -->
+    <section class="section callout" id="workflowChecklistSection"
+             data-workflow-checklist-root
+             data-checklist-scope="home_v1">
+      <div class="row between">
+        <h2 class="local-h2 local-tight">업무 흐름 체크리스트 (온보딩 기본 루틴)</h2>
+        <p class="muted local-small">오늘: <span data-today-text> - </span></p>
+      </div>
+
+      <div class="checklist" aria-label="온보딩 체크리스트">
+        <div class="check">
+          <input id="home_c1" type="checkbox" />
+          <label class="label" for="home_c1">
+            <strong>내 담당업무 범위/주요 마감(월별)을 “달력”에 먼저 박아두기</strong>
+            <p class="muted">업무는 기억이 아니라 일정표로 굴러갑니다.</p>
+          </label>
+        </div>
+
+        <div class="check">
+          <input id="home_c2" type="checkbox" />
+          <label class="label" for="home_c2">
+            <strong>인수인계 3종 세트 확인: (1) 열쇠/대장 (2) 공유폴더 (3) 미처리 목록</strong>
+            <p class="muted">사람이 바뀌어도 “흐름이 끊기지 않게” 만드는 게 목표.</p>
+          </label>
+        </div>
+
+        <div class="check">
+          <input id="home_c3" type="checkbox" />
+          <label class="label" for="home_c3">
+            <strong>권한/접속 점검: K-에듀파인, 나이스, 공문 시스템, 공동인증서/보안토큰</strong>
+            <p class="muted">권한이 막히면 업무가 멈춥니다. 초반에 뚫어두는 게 최선.</p>
+          </label>
+        </div>
+
+        <div class="check">
+          <input id="home_c4" type="checkbox" />
+          <label class="label" for="home_c4">
+            <strong>기록물 “연간 큰 흐름”만 외워두기: 지정 → 2월 정리 → 5월 통보 → (6~10월) 폐기 절차 → 12월 대장</strong>
+            <p class="muted">상세는 아래 기록물 가이드에서 체크리스트로 따라가면 됩니다.</p>
+          </label>
+        </div>
+
+        <div class="check">
+          <input id="home_c5" type="checkbox" />
+          <label class="label" for="home_c5">
+            <strong>업무에 쓰는 템플릿/서식을 “내 폴더”로 복사해 표준화하기</strong>
+            <p class="muted">같은 문서를 매번 새로 쓰지 않게 만드는 게 곧 자동화입니다.</p>
+          </label>
+        </div>
+      </div>
+
+      <p class="muted">
+        팁: 인쇄 시 “체크리스트 PDF” 버튼을 누르면, 이 섹션만 깔끔하게 출력되도록 되어 있습니다.
+      </p>
+    </section>
+
+    <!-- 가이드 진열대 -->
+    <section class="section" id="guides">
+      <h2 class="local-h2">가이드 진열대</h2>
+      <hr/>
+
+      <div>
+        <a class="btn pastel-blue" href="/guide-for-new-members-records-index.html">기록물 업무 흐름 (상세 가이드)</a>
+        <div class="btn-desc">
+          ·연간 반복 흐름(지정 → 정리 → 생산현황 통보 → 폐기 심의/절차 → 관리대장) + 체크리스트 + PDF 출력<br/>
+          ·신규 교행이 “제일 먼저 막히는 구간(2월 정리, 폐기 절차)”을 실무 단위로 쪼갠 페이지
+        </div>
+      </div>
+
+      <div>
+        <a class="btn pastel-grey" href="#" aria-disabled="true" onclick="return false;">학교회계(세입/세출) 업무 흐름 (준비중)</a>
+        <div class="btn-desc">·월별 마감/결재 루틴을 체크리스트로 제공 예정</div>
+      </div>
+
+      <div>
+        <a class="btn pastel-grey" href="#" aria-disabled="true" onclick="return false;">인사·복무(공무직/기간제 포함) 업무 흐름 (준비중)</a>
+        <div class="btn-desc">·연차, 발령, 근무상황, 계약 갱신 등 “반복업무” 흐름 중심으로 정리 예정</div>
+      </div>
+    </section>
+
+    <!-- 운영 메모 -->
+    <section class="section" id="notes">
+      <h2 class="local-h2">운영 메모</h2>
+      <hr/>
+      <div class="card">
+        <h3 class="local-h3 local-tight">이 사이트의 규칙(단순하지만 강력)</h3>
+        <ol>
+          <li><span class="accent">업무는 ‘절차’가 아니라 ‘흐름’</span>으로 본다.</li>
+          <li>흐름은 <span class="accent">체크리스트</span>로 분해하고, 체크리스트는 <span class="accent">PDF로 남길 수 있어야</span> 한다.</li>
+          <li>동일한 실수를 반복하지 않도록, “자주 터지는 지점”은 별도로 적어둔다.</li>
+        </ol>
+        <p class="muted">복잡한 세계를 이겨내는 가장 좋은 방법은, 복잡함을 ‘잘게’ 써두는 것입니다.</p>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="shell">
+        <p><span class="accent">메모:</span> 이 페이지는 신규 교행의 빠른 업무 적응을 돕기 위한 가이드(정리본)입니다.</p>
+        <p class="muted">기관별 세부 일정/서식/근거 문구는 관할 교육(지원)청 안내와 최신 지침을 우선하세요.</p>
+      </div>
+    </footer>
+
+    <button id="btnToTop" class="btn pastel-grey no-print" type="button" aria-label="맨 위로">↑</button>
+  </main>
+
+  <!-- 공통 스크립트: 체크리스트 저장/인쇄 -->
+  <script src="/static/workflow-checklist.js?v=1"></script>
+
+  <!-- 기존 공통 스크립트(있다면 유지) -->
+  <script src="/static/disable-copy.js"></script>
+  <script src="/static/footer.js"></script>
+  <script src="/static/global-loader.js?v=1"></script>
+</body>
+</html>
