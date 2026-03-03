@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>연차 사용일수 및 수당 미니 계산기</title>
+
+  <link rel="icon" href="/static/favicon.ico" />
+  <link rel="stylesheet" href="/static/style.css" />
+
+  <style>
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      padding:24px;
+      background:#fff;
+      color:#111;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial, "Apple SD Gothic Neo", "Noto Sans KR", "맑은 고딕", sans-serif;
+      line-height:1.5;
+    }
+    .wrap{ max-width: 1100px; margin: 0 auto; }
+
+    h1{
+      font-size: 34px;
+      letter-spacing: -0.02em;
+      margin: 14px 0 6px;
+      text-align:center;
+    }
+    .muted{
+      color:#6b7280;
+      font-size: 13px;
+      margin: 0 0 18px;
+      text-align:center;
+    }
+    .muted .dot{ display:inline-block; margin-right:6px; }
+
+    .rowbar{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:flex-start;
+      flex-wrap:wrap;
+      margin: 14px 0 14px;
+    }
+    .btn{
+      border:1px solid #cbd5e1;
+      background:#fff;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .sheet{
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      overflow:hidden;          /* 가로 스크롤 자체를 줄이는 구조 */
+      box-shadow: 0 8px 22px rgba(0,0,0,.06);
+      background:#fff;
+    }
+    table{
+      width:100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    th, td{
+      border-bottom:1px solid #eef2f7;
+      border-right:1px solid #eef2f7;
+      padding:10px 10px;
+      vertical-align: middle;
+      background:#fff;
+      font-size: 13px;
+    }
+    th{
+      background:#fafafa;
+      color:#0f172a;
+      font-weight: 900;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      text-align:left;
+    }
+    td:last-child, th:last-child{ border-right:none; }
+    tbody tr:last-child td{ border-bottom:none; }
+
+    input{
+      width:100%;
+      padding:11px 11px;
+      border:1px solid #cbd5e1;
+      border-radius:12px;
+      outline:none;
+      font-size: 13px;
+      background:#fff;
+    }
+    input:focus{
+      border-color:#64748b;
+      box-shadow: 0 0 0 3px rgba(100,116,139,.15);
+    }
+
+    .row-title{
+      font-weight:900;
+      color:#334155;
+      font-size: 12px;
+      margin-bottom: 4px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      white-space: nowrap;
+    }
+    .badge{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid #e5e7eb;
+      background:#fff;
+      color:#64748b;
+      font-weight:800;
+      font-size: 11px;
+    }
+
+    .outbox{
+      display:flex;
+      flex-direction: column;
+      gap:4px;
+      min-height: 44px;
+      justify-content:center;
+    }
+    .outlabel{
+      color:#64748b;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .outval{
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      color:#0f172a;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+    .outval.small{ font-size: 14px; }
+    .right{ text-align:right; }
+
+    .group-divider td{
+      padding:0;
+      border-right:none;
+      border-bottom: none;
+      background:#fff;
+    }
+    .divider-line{
+      height: 10px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.00), rgba(0,0,0,0.03));
+      border-top: 1px solid #eef2f7;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .note{
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background:#fafafa;
+      color:#334155;
+      font-size: 13px;
+    }
+
+    @media (max-width: 860px){
+      body{ padding: 16px; }
+      h1{ font-size: 28px; }
+      th, td{ padding: 9px 9px; }
+      input{ padding: 10px 10px; }
+      .outval{ font-size: 15px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <h1>연차 사용일수 및 수당 미니 계산기</h1>
+    <p class="muted">
+      ·시간 환산 빠르게 하려고 만듦. 키보드 방향키로 셀 이동 가능. 엑셀처럼 Enter치면 아래로 이동.<br/>
+      ·일/시/분 단위 시간은 1일 소정근무시간에 따라 산출됨.
+    </p>
+
+    <div class="rowbar">
+      <button class="btn" id="addPersonBtn" type="button">행 추가</button>
+      <button class="btn" id="clearAllBtn" type="button">전체 초기화</button>
+      <button class="btn" id="downloadXlsxBtn" type="button">결과 엑셀 다운로드</button>
+    </div>
+
+    <div class="sheet" aria-label="연차 계산 시트">
+      <table id="grid">
+        <colgroup>
+          <col style="width: 18%;" />
+          <col style="width: 16%;" />
+          <col style="width: 16%;" />
+          <col style="width: 16%;" />
+          <col style="width: 16%;" />
+          <col style="width: 18%;" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>이름(선택)</th>
+            <th>1일 소정근무시간(시간)</th>
+            <th>연차 부여 일수(일)</th>
+            <th>연차 사용(시간)</th>
+            <th>연차 사용(분)</th>
+            <th>통상임금(시간당,원)</th>
+          </tr>
+        </thead>
+        <tbody id="gridBody"></tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      계산식: 총 연차시간 = 연차일수 × 1일 소정근무시간, 잔여시간 = 총 연차시간 − 사용시간(음수면 0).<br/>
+      수당: 잔여시간 × 통상임금, 원 단위 절삭(일의 자리 제거) 적용.
+    </div>
+  </main>
+
+  <!-- SheetJS: CDN + fallback -->
+  <script>
+    (function loadXLSX(){
+      function inject(src, onload){
+        var s = document.createElement("script");
+        s.src = src;
+        s.onload = onload;
+        s.onerror = function(){ onload(false); };
+        document.head.appendChild(s);
+      }
+      inject("https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js", function(ok){
+        if (ok === false || !window.XLSX){
+          inject("/static/xlsx.full.min.js", function(){ /* silent */ });
+        }
+      });
+    })();
+  </script>
+
+  <script>
+    // =========================
+    // Helpers
+    // =========================
+    function num(v){
+      if (v == null) return 0;
+      const s = String(v).trim().replaceAll(",", "");
+      if (!s) return 0;
+      const n = Number(s);
+      return Number.isFinite(n) ? n : 0;
+    }
+    function clamp0(n){ return n < 0 ? 0 : n; }
+    function toFixed2(n){ return (Math.round(n * 100) / 100).toFixed(2); }
+    function floorTo10Won(amount){
+      const a = Math.floor(num(amount));
+      return Math.floor(a / 10) * 10; // 1111 -> 1110
+    }
+    function formatKRW(n){
+      return Math.floor(num(n)).toLocaleString("ko-KR");
+    }
+
+    // totalHours -> {d,h,m}
+    function hoursToDHM(totalHours, dayHours){
+      totalHours = clamp0(totalHours);
+      dayHours = num(dayHours);
+      const minutesAll = Math.round(totalHours * 60);
+
+      if (dayHours <= 0){
+        const h = Math.floor(minutesAll / 60);
+        const m = minutesAll % 60;
+        return { d: 0, h, m };
+      }
+
+      const dayMinutes = Math.round(dayHours * 60);
+      const d = Math.floor(minutesAll / dayMinutes);
+      const remMinAfterDays = minutesAll - d * dayMinutes;
+      const h = Math.floor(remMinAfterDays / 60);
+      const m = remMinAfterDays % 60;
+      return { d, h, m };
+    }
+
+    function normalizeHM(h, m){
+      const totalMin = Math.round(num(h) * 60 + num(m));
+      const hh = Math.floor(totalMin / 60);
+      const mm = ((totalMin % 60) + 60) % 60;
+      return { totalMin, hh, mm };
+    }
+
+    // =========================
+    // DOM refs
+    // =========================
+    const gridBody = document.getElementById("gridBody");
+    const addPersonBtn = document.getElementById("addPersonBtn");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    const downloadXlsxBtn = document.getElementById("downloadXlsxBtn");
+
+    // 사람(세트) 단위 index
+    let personCount = 0;
+
+    // =========================
+    // Build 2-row person block
+    // =========================
+    function makeInputCell({ person, col, key, placeholder, inputmode }){
+      const td = document.createElement("td");
+      const inp = document.createElement("input");
+      inp.className = "cell";
+      inp.dataset.p = String(person);   // person index
+      inp.dataset.c = String(col);      // column index 1..6
+      inp.dataset.key = key;
+      if (placeholder) inp.placeholder = placeholder;
+      if (inputmode) inp.setAttribute("inputmode", inputmode);
+      td.appendChild(inp);
+      return td;
+    }
+
+    function makeOutCell({ label, value, valueClass }){
+      const td = document.createElement("td");
+      const box = document.createElement("div");
+      box.className = "outbox";
+      const l = document.createElement("div");
+      l.className = "outlabel";
+      l.textContent = label;
+      const v = document.createElement("div");
+      v.className = "outval" + (valueClass ? (" " + valueClass) : "");
+      v.textContent = value;
+
+      box.appendChild(l);
+      box.appendChild(v);
+      td.appendChild(box);
+      return { td, v };
+    }
+
+    function addPerson(){
+      personCount += 1;
+      const p = personCount;
+
+      // 입력행
+      const trIn = document.createElement("tr");
+      trIn.className = "person-in";
+      trIn.dataset.person = String(p);
+
+      trIn.appendChild(makeInputCell({ person:p, col:1, key:"name", placeholder:"예: 홍길동", inputmode:"text" }));
+      trIn.appendChild(makeInputCell({ person:p, col:2, key:"dayHours", placeholder:"예: 8", inputmode:"decimal" }));
+      trIn.appendChild(makeInputCell({ person:p, col:3, key:"leaveDays", placeholder:"예: 12.50", inputmode:"decimal" }));
+      trIn.appendChild(makeInputCell({ person:p, col:4, key:"usedHours", placeholder:"예: 7", inputmode:"numeric" }));
+      trIn.appendChild(makeInputCell({ person:p, col:5, key:"usedMinutes", placeholder:"예: 30", inputmode:"numeric" }));
+      trIn.appendChild(makeInputCell({ person:p, col:6, key:"wage", placeholder:"예: 12345", inputmode:"numeric" }));
+
+      // 결과행
+      const trOut = document.createElement("tr");
+      trOut.className = "person-out";
+      trOut.dataset.person = String(p);
+
+      const o1 = makeOutCell({ label:"총 연차(일/시/분)", value:"0일 0시간 0분", valueClass:"small" });
+      const o2 = makeOutCell({ label:"총 연차시간(10진수)", value:"0.00", valueClass:"right" });
+      const o3 = makeOutCell({ label:"사용시간(10진수)", value:"0.00", valueClass:"right" });
+      const o4 = makeOutCell({ label:"잔여시간(10진수)", value:"0.00", valueClass:"right" });
+      const o5 = makeOutCell({ label:"미사용 수당(원)", value:"0", valueClass:"right" });
+
+      // 결과행은 6칸 유지(가로 스크롤 방지)
+      trOut.appendChild(o1.td);
+      trOut.appendChild(o2.td);
+      trOut.appendChild(o3.td);
+      trOut.appendChild(o4.td);
+      trOut.appendChild(o5.td);
+
+      // 마지막 1칸은 “세트 정보/구분” 용도로 쓰면 좋음 (여기선 간단히 표시)
+      const tdTag = document.createElement("td");
+      const tagWrap = document.createElement("div");
+      tagWrap.className = "outbox";
+      const t1 = document.createElement("div");
+      t1.className = "row-title";
+      t1.innerHTML = '결과행 <span class="badge">#' + p + '</span>';
+      const t2 = document.createElement("div");
+      t2.className = "outlabel";
+      t2.textContent = "입력은 위 행에서";
+      tagWrap.appendChild(t1);
+      tagWrap.appendChild(t2);
+      tdTag.appendChild(tagWrap);
+      trOut.appendChild(tdTag);
+
+      // output refs
+      o1.v.dataset.out = "totalDHM";
+      o2.v.dataset.out = "totalHoursDec";
+      o3.v.dataset.out = "usedHoursDec";
+      o4.v.dataset.out = "remainHoursDec";
+      o5.v.dataset.out = "payWon";
+
+      // group divider (시각적으로 사람 단위 구분)
+      const trDiv = document.createElement("tr");
+      trDiv.className = "group-divider";
+      const tdDiv = document.createElement("td");
+      tdDiv.colSpan = 6;
+      const divLine = document.createElement("div");
+      divLine.className = "divider-line";
+      tdDiv.appendChild(divLine);
+      trDiv.appendChild(tdDiv);
+
+      gridBody.appendChild(trIn);
+      gridBody.appendChild(trOut);
+      gridBody.appendChild(trDiv);
+    }
+
+    // 기본 8명
+    for (let i=0; i<8; i++) addPerson();
+
+    // =========================
+    // Navigation (inputs only)
+    // =========================
+    function rebuildNav(){
+      const cells = Array.from(document.querySelectorAll(".cell"));
+      const map = new Map();
+      for (const el of cells){
+        const p = Number(el.dataset.p);
+        const c = Number(el.dataset.c);
+        map.set(`${p},${c}`, el);
+      }
+      return { cells, map };
+    }
+    let nav = rebuildNav();
+
+    function focusCell(p, c){
+      const el = nav.map.get(`${p},${c}`);
+      if (!el) return false;
+      el.focus();
+      el.select?.();
+      return true;
+    }
+
+    function nextP(p, dir){
+      // 사람 단위로 이동
+      let pp = p + dir;
+      for (let i=0; i<400; i++){
+        if (nav.map.has(`${pp},1`)) return pp;
+        pp += dir;
+      }
+      return null;
+    }
+
+    function attachNavHandlers(){
+      nav.cells.forEach(el => {
+        if (el._navBound) return;
+        el._navBound = true;
+
+        el.addEventListener("keydown", (e) => {
+          const p = Number(el.dataset.p);
+          const c = Number(el.dataset.c);
+          if (e.isComposing) return;
+
+          if (e.key === "ArrowLeft"){
+            const cc = c - 1;
+            if (cc >= 1 && nav.map.has(`${p},${cc}`)){
+              e.preventDefault(); focusCell(p, cc);
+            }
+          } else if (e.key === "ArrowRight"){
+            const cc = c + 1;
+            if (cc <= 6 && nav.map.has(`${p},${cc}`)){
+              e.preventDefault(); focusCell(p, cc);
+            }
+          } else if (e.key === "ArrowUp"){
+            const pp = nextP(p, -1);
+            if (pp != null && nav.map.has(`${pp},${c}`)){
+              e.preventDefault(); focusCell(pp, c);
+            }
+          } else if (e.key === "ArrowDown"){
+            const pp = nextP(p, +1);
+            if (pp != null && nav.map.has(`${pp},${c}`)){
+              e.preventDefault(); focusCell(pp, c);
+            }
+          } else if (e.key === "Enter"){
+            // Enter: 아래 사람 같은 열
+            const pp = nextP(p, +1);
+            if (pp != null && nav.map.has(`${pp},${c}`)){
+              e.preventDefault(); focusCell(pp, c);
+            }
+          }
+        });
+      });
+    }
+    attachNavHandlers();
+
+    // =========================
+    // Recalc per person block
+    // =========================
+    function getInput(p, key){
+      const el = document.querySelector(`input.cell[data-p="${p}"][data-key="${key}"]`);
+      return el ? el.value : "";
+    }
+
+    function setOut(p, outKey, text){
+      const outRow = document.querySelector(`tr.person-out[data-person="${p}"]`);
+      if (!outRow) return;
+      const v = outRow.querySelector(`[data-out="${outKey}"]`);
+      if (v) v.textContent = text;
+    }
+
+    function recalcPerson(p){
+      const dayHours = num(getInput(p, "dayHours"));
+      const leaveDays = num(getInput(p, "leaveDays"));
+      const totalLeaveHours = clamp0(leaveDays * (dayHours > 0 ? dayHours : 0));
+
+      const usedNorm = normalizeHM(getInput(p, "usedHours"), getInput(p, "usedMinutes"));
+      const usedHoursDec = clamp0(usedNorm.totalMin / 60);
+
+      const remainHours = clamp0(totalLeaveHours - usedHoursDec);
+
+      const wage = clamp0(num(getInput(p, "wage")));
+      const pay = floorTo10Won(remainHours * wage);
+
+      const totalDHM = hoursToDHM(totalLeaveHours, dayHours);
+
+      setOut(p, "totalDHM", `${totalDHM.d}일 ${totalDHM.h}시간 ${totalDHM.m}분`);
+      setOut(p, "totalHoursDec", toFixed2(totalLeaveHours));
+      setOut(p, "usedHoursDec", toFixed2(usedHoursDec));
+      setOut(p, "remainHoursDec", toFixed2(remainHours));
+      setOut(p, "payWon", formatKRW(pay));
+    }
+
+    function recalcAll(){
+      for (let p=1; p<=personCount; p++){
+        // 존재하는 사람만
+        if (document.querySelector(`tr.person-in[data-person="${p}"]`)) recalcPerson(p);
+      }
+    }
+
+    // 입력 이벤트 위임: 입력행에서만 계산 트리거
+    gridBody.addEventListener("input", (e) => {
+      const cell = e.target.closest("input.cell");
+      if (!cell) return;
+      const p = Number(cell.dataset.p);
+      recalcPerson(p);
+    });
+    gridBody.addEventListener("change", (e) => {
+      const cell = e.target.closest("input.cell");
+      if (!cell) return;
+      const p = Number(cell.dataset.p);
+      recalcPerson(p);
+    });
+
+    // =========================
+    // Buttons
+    // =========================
+    addPersonBtn.addEventListener("click", () => {
+      addPerson();
+      nav = rebuildNav();
+      attachNavHandlers();
+      recalcPerson(personCount);
+      focusCell(personCount, 1);
+    });
+
+    clearAllBtn.addEventListener("click", () => {
+      const inputs = Array.from(document.querySelectorAll("input.cell"));
+      inputs.forEach(i => i.value = "");
+      recalcAll();
+      focusCell(1, 1);
+    });
+
+    // =========================
+    // Excel download
+    // =========================
+    function nowStamp(){
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const y = d.getFullYear();
+      const m = pad(d.getMonth()+1);
+      const da = pad(d.getDate());
+      const hh = pad(d.getHours());
+      const mm = pad(d.getMinutes());
+      return `${y}${m}${da}_${hh}${mm}`;
+    }
+
+    function collectRows(){
+      const rows = [];
+      for (let p=1; p<=personCount; p++){
+        const inRow = document.querySelector(`tr.person-in[data-person="${p}"]`);
+        const outRow = document.querySelector(`tr.person-out[data-person="${p}"]`);
+        if (!inRow || !outRow) continue;
+
+        const name = getInput(p, "name");
+        const dayHours = num(getInput(p, "dayHours"));
+        const leaveDays = num(getInput(p, "leaveDays"));
+        const usedH = num(getInput(p, "usedHours"));
+        const usedM = num(getInput(p, "usedMinutes"));
+        const wage = num(getInput(p, "wage"));
+
+        const totalDHM = outRow.querySelector(`[data-out="totalDHM"]`)?.textContent ?? "";
+        const totalHoursDec = outRow.querySelector(`[data-out="totalHoursDec"]`)?.textContent ?? "0.00";
+        const usedHoursDec = outRow.querySelector(`[data-out="usedHoursDec"]`)?.textContent ?? "0.00";
+        const remainHoursDec = outRow.querySelector(`[data-out="remainHoursDec"]`)?.textContent ?? "0.00";
+        const payWon = outRow.querySelector(`[data-out="payWon"]`)?.textContent ?? "0";
+
+        // 완전 공백 행은 제외(이름도 없고 입력값도 0이면)
+        const isEmpty =
+          String(name).trim() === "" &&
+          dayHours === 0 && leaveDays === 0 && usedH === 0 && usedM === 0 && wage === 0;
+        if (isEmpty) continue;
+
+        rows.push({
+          "이름": name,
+          "1일 소정근무시간(시간)": dayHours,
+          "연차 부여 일수(일)": leaveDays,
+          "연차 사용(시간)": usedH,
+          "연차 사용(분)": usedM,
+          "통상임금(시간당,원)": wage,
+          "총 연차(일/시/분)": totalDHM,
+          "총 연차시간(10진수)": Number(totalHoursDec),
+          "사용시간(10진수)": Number(usedHoursDec),
+          "잔여시간(10진수)": Number(remainHoursDec),
+          "미사용 수당(원)": Number(String(payWon).replaceAll(",", ""))
+        });
+      }
+      return rows;
+    }
+
+    downloadXlsxBtn.addEventListener("click", () => {
+      if (!window.XLSX){
+        alert("엑셀 라이브러리(XLSX) 로딩이 아직 안 됐습니다.\n잠깐 뒤 다시 눌러주세요.\n(또는 /static/xlsx.full.min.js를 준비해두면 더 안정적입니다.)");
+        return;
+      }
+
+      recalcAll();
+      const data = collectRows();
+
+      if (data.length === 0){
+        alert("다운로드할 데이터가 없습니다.\n(아무 행도 입력되지 않았어요)");
+        return;
+      }
+
+      const ws = XLSX.utils.json_to_sheet(data, { skipHeader:false });
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "연차미사용_산출");
+
+      const filename = `annual_leave_unused_${nowStamp()}.xlsx`;
+      XLSX.writeFile(wb, filename);
+    });
+
+    // 초기 계산 + 포커스
+    recalcAll();
+    focusCell(1, 1);
+  </script>
+
+  <script src="/static/disable-copy.js"></script>
+  <script src="/static/footer.js"></script>
+  <script src="/static/global-loader.js?v=1"></script>
+</body>
+</html>

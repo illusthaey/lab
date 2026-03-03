@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>출입문개폐전담원 월별 인건비 산출내역</title>
+
+  <link rel="icon" href="/static/favicon.ico" />
+  <link rel="stylesheet" href="/static/style.css" />
+
+  <style>
+
+    .field label{ display:block; font-weight:700; margin:0 0 6px; }
+    .field .help{ margin-top:6px; font-size:0.92rem; color:#666; }
+
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid #d4d4d8;
+      background:#f9fafb;
+      font-weight:800;
+      font-size:0.95rem;
+    }
+    .pill.ok{
+      border-color:#10b981;
+      background:#ecfdf5;
+      color:#065f46;
+    }
+
+    /* 엑셀 느낌의 포커스 */
+    .cell-focus{
+      outline:2px solid rgba(99,102,241,0.55);
+      outline-offset:1px;
+    }
+
+    /* ===== 달력 ===== */
+    .calendar-wrap{
+      width:100%;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      margin-top:12px;
+      padding-bottom:6px;
+    }
+    table.calendar{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      min-width:0;
+      background:#fff;
+    }
+    .calendar th, .calendar td{
+      border:1px solid #e5e7eb;
+      vertical-align:top;
+      padding:8px 8px;
+    }
+    .calendar th{
+      background:#f9fafb;
+      font-weight:800;
+      text-align:center;
+      font-size:0.98rem;
+    }
+    .calendar td{
+      background:#fff;
+    }
+    .calendar td.day-on{
+      background:#ecfdf5;
+    }
+    .cal-day{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .cal-num{
+      font-weight:900;
+      font-size:1.05rem;
+      color:#111;
+      line-height:1;
+    }
+    .cal-sub{
+      font-size:0.85rem;
+      color:#666;
+      line-height:1;
+    }
+    .cal-controls{
+      margin-top:8px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .att-toggle{
+      border:1px solid #d4d4d8;
+      background:#f3f4f6;
+      color:#111;
+      border-radius:10px;
+      padding:8px 10px;
+      font-weight:900;
+      cursor:pointer;
+      user-select:none;
+    }
+    .att-toggle.on{
+      background:#065f46;
+      border-color:#065f46;
+      color:#fff;
+    }
+
+    /* ===== 임금명세서 미리보기(가로스크롤 방지) ===== */
+    .payslip-wrap{
+      width:100%;
+      overflow-x:hidden; /* 불필요한 가로스크롤 방지 */
+    }
+    table.payslip{
+      width:100%;
+      min-width:0;
+      border-collapse:collapse;
+      table-layout:fixed; /* colgroup 폭을 강제로 존중 */
+      background:#fff;
+      font-size:0.95rem;
+    }
+    .payslip td{
+      border:1px solid #e5e7eb;
+      padding:6px 6px; /* 기존보다 컴팩트 */
+      vertical-align:middle;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .payslip .title{
+      font-size:1.15rem;
+      font-weight:900;
+      padding:10px 6px;
+      text-align:center;
+    }
+    .payslip .h{
+      background:#f9fafb;
+      font-weight:900;
+    }
+    .payslip .subhead{
+      background:#f3f4f6;
+      font-weight:900;
+    }
+    .payslip .center{
+      text-align:center;
+      white-space:pre-line; /* "매월\n지급" 줄바꿈 표시 */
+    }
+    .payslip .right{ text-align:right; }
+    .payslip .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:0.9rem;
+      white-space:normal;
+    }
+
+    @media (max-width: 640px){
+      .calendar th, .calendar td{ padding:6px 6px; }
+      .att-toggle{ padding:7px 8px; font-size:0.92rem; }
+      .payslip td{ padding:4px 4px; font-size:0.9rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+    <h1>출입문개폐전담원 월별 인건비 (사용 가능)</h1>
+    <p class="subtitle">
+      ·출근 내역 및 인건비 산출내역 엑셀 파일 및 pdf로 저장 가능 <br/>
+      ·주15시간 미만 초단시간 근로자로 가정함. 
+    </p>
+
+    <p class="muted" id="libWarn"></p>
+
+    <!-- ===================== 기본정보 ===================== -->
+    <section class="section">
+      <h2 class="local-h2">1. 임금명세 기본정보</h2>
+      <hr/>
+
+      <div class="grid two">
+        <div class="field">
+          <label for="payMonth">지급월</label>
+          <input id="payMonth" type="month" />
+        </div>
+
+        <div class="field">
+          <label for="payDate">지급일자</label>
+          <input id="payDate" type="date" />
+        </div>
+
+        <div class="field">
+          <label for="schoolName">학교명</label>
+          <input id="schoolName" type="text" placeholder="예) 행정초등학교" />
+        </div>
+
+        <div class="field">
+          <label for="workerName">근로자 성명</label>
+          <input id="workerName" type="text" placeholder="예) 김교행" />
+        </div>
+
+        <div class="field">
+          <label for="jobTitle">직종</label>
+          <input id="jobTitle" type="text" value="출입문개폐전담원" />
+        </div>
+
+        <div class="field">
+          <label for="birthDate">생년월일</label>
+          <input id="birthDate" type="date" />
+        </div>
+
+        <div class="field">
+          <label for="hireDate">최초임용일</label>
+          <input id="hireDate" type="date" />
+        </div>
+
+        <div class="field">
+          <label for="hourlyRate">시급</label>
+          <div class="row gap">
+            <input id="hourlyRate" type="number" class="numeric" min="0" step="10" />
+            <button type="button" class="btn-lightgrey" id="preset2025Btn">2025회계 (11,200원)</button>
+            <button type="button" class="btn-lightgrey" id="preset2026Btn">2026회계 (11,500원)</button>
+          </div>
+          <div class="help">
+            ·관련: 2026년도 학교회계 예산편성 지침 (p.74, 비정규직 처우개선에 포함되지 않는 기타 일용직 단가)
+            ·필요시 수기 입력 수정 가능
+          </div>
+        </div>
+      </div>
+
+      <div class="row gap" style="flex-wrap:wrap;">
+        <button type="button" class="btn primary" id="downloadTemplateBtn">업로드용 엑셀 서식 다운로드</button>
+        <label class="btn" style="cursor:pointer;">
+          엑셀 파일 불러오기
+          <input id="uploadXlsx" type="file" accept=".xlsx,.xls" style="display:none;" />
+        </label>
+      <p class="muted" id="uploadStatus"></p>
+      </div>
+      
+      <div class="row between" style="margin-top:14px;">
+          <button type="button" class="btn" id="resetAllBtn">초기화하기</button>
+      </div>
+    </section>
+
+    <!-- ===================== 계약조건(요일별 근무시간) ===================== -->
+    <section class="section">
+      <h2 class="local-h2">2. 요일별 근무시간대</h2>
+      <p class="muted">
+        ·요일별 출퇴근 시각 입력하면 1일 소정근로시간 자동 계산됨. <br/>
+      </p>
+      <hr/>
+
+      <div class="row between">
+        <div id="contractWeeklyHoursPill" class="pill">주간 계약시간: 0시간</div>
+        <div class="row gap">
+          <button type="button" class="btn-lightgrey" id="loadExampleScheduleBtn">예시 적용</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px;">
+        <table class="sheetlike">
+          <thead>
+            <tr>
+              <th>요일</th>
+              <th>오전근무 시작시간</th>
+              <th>오전근무 종료시간</th>
+              <th>오후근무 시작시간</th>
+              <th>오후근무 종료시간</th>
+              <th>1일 소근로시간</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleTbody"></tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <!-- ===================== 출근내역(달력) ===================== -->
+    <section class="section">
+      <h2 class="local-h2">3. 출근 내역 입력</h2>
+      <hr/>
+
+      <div class="row between">
+        <label class="row gap">
+          <input id="showManualDailyHours" type="checkbox" />
+          <span>일별 근로시간 개별 입력하기</span>
+        </label>
+
+        <div class="row gap">
+          <button type="button" class="btn" id="fillByScheduleBtn">근무시간 자동 적용하기</button>
+          <button type="button" class="btn" id="clearCalendarBtn">초기화 하기</button>
+        </div>
+      </div>
+
+      <div class="calendar-wrap">
+        <table class="calendar">
+          <thead>
+            <tr>
+              <th>일요일</th>
+              <th>월요일</th>
+              <th>화요일</th>
+              <th>수요일</th>
+              <th>목요일</th>
+              <th>금요일</th>
+              <th>토요일</th>
+            </tr>
+          </thead>
+          <tbody id="calendarTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3 class="local-h3">건강보험료</h3>
+            <input id="deductLtCareOn" type="checkbox" />
+            <span>공제 적용하기</span></label>
+        <div class="muted">
+          ·체크 시, 지급총액*건강보험요율로 금액 자동 산출 (필요시 수정 가능)
+        </div>
+        <div class="row gap">
+          <label>건강요율 <input id="healthRate" type="number" step="0.00001" class="numeric" style="width:120px;" /></label>
+          <label>금액(원) <input id="healthAmt" type="number" class="numeric" style="width:140px;" /></label>
+          <button type="button" class="btn" id="healthAutoBtn">금액 반영하기</button>
+          
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="local-h3">장기요양보험료</h3>
+            <input id="deductLtCareOn" type="checkbox" />
+            <span>공제 적용하기</span></label>
+        <div class="muted">
+          ·체크 시, 건강보험료*장기요양보험요율로 금액 자동 산출 (필요시 수정 가능)
+        </div>
+        <div class="row gap">
+          <label class="row gap">
+          <label>장기요양요율 <input id="ltCareRate" type="number" step="0.00001" class="numeric" style="width:120px;" /></label>
+          <label>금액(원) <input id="ltCareAmt" type="number" class="numeric" style="width:140px;" /></label>
+          <button type="button" class="btn" id="ltCareAutoBtn">금액 반영하기</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="local-h3">고용보험료</h3>
+        <input id="deductEmpOn" type="checkbox" />
+            <span>공제 적용하기</span></label>
+        <div class="muted">
+          ·체크 시, 지급총액*고용보험요율로 금액 자동 산출 (필요시 수정 가능)
+        </div>
+        <div class="row gap">
+          <label class="row gap">
+          <label>고용요율 <input id="empRate" type="number" step="0.00001" class="numeric" style="width:120px;" /></label>
+          <label>금액(원) <input id="empAmt" type="number" class="numeric" style="width:140px;" /></label>
+          <button type="button" class="btn" id="empAutoBtn">금액 반영하기</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="local-h3">그 외 공제내역 (수기입력)</h3>
+        <div class="grid two">
+          <div class="field">
+            <label for="incomeTax">소득세</label>
+            <input id="incomeTax" type="number" class="numeric" min="0" step="10" />
+          </div>
+          <div class="field">
+            <label for="localTax">지방소득세</label>
+            <input id="localTax" type="number" class="numeric" min="0" step="10" />
+          </div>
+          <div class="field">
+            <label for="pension">국민연금보험료</label>
+            <input id="pension" type="number" class="numeric" min="0" step="10" />
+          </div>
+          <div class="field">
+            <label for="otherDeduct">기타 공제</label>
+            <input id="otherDeduct" type="number" class="numeric" min="0" step="10" />
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="card">
+        <div class="row between">
+          <div>당월 근무일수: <strong id="workDaysText">0</strong>일</div>
+          <div>당월 유급근로시간: <strong id="workHoursText">0</strong>시간</div>
+        </div>
+        <div class="row between" style="margin-top:8px;">
+          <div>지급총액: <strong id="grossPayText">0</strong>원</div>
+          <div>공제액계: <strong id="deductTotalText">0</strong>원</div>
+          <div>실수령액: <strong id="netPayText">0</strong>원</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 임금명세서 미리보기 ===================== -->
+    <section class="section">
+      <h2 class="local-h2">6. 산출 내역</h2>
+    <p class="muted">
+      ·임금명세서 미리보기 기능
+    </p>
+      <hr/>
+      <div class="payslip-wrap" id="payslipPreview"></div>
+    </section>
+
+    <div class="home-link-wrap">
+        <a href="/" class="btn-home">메인 페이지로 돌아가기</a>
+      </div>
+  </main>
+
+  <!-- ===== 외부 라이브러리(클라이언트만) ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" defer></script>
+
+  <!-- ===== 앱 로직 ===== -->
+  <script src="./app.js" defer></script>
+
+  <script src="/static/global-loader.js?v=1"></script>
+<script src="/static/footer.js"></script>
+<script src="/static/disable-copy.js"></script>
+</body>
+</html>
